@@ -12,6 +12,7 @@ import me.dio.sacola.resource.dto.ItemDto;
 import me.dio.sacola.service.SacolaService;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -53,8 +54,24 @@ public class SacolaServiceImpl implements SacolaService {
             }
         }
 
+        List<Double> valorDosItens = new ArrayList<>();
+        for (Item itemDaSacola : itensDaSacola) {
+            double valorTotalItem =
+                    itemDaSacola.getProduto().getValorUnitario() * itemDaSacola.getQuantidade();
+            valorDosItens.add(valorTotalItem);
+        }
+//
+//        Double valorTotalSacola = 0.0;
+//        for (Double valorDeCadaItem : valorDosItens) {
+//            valorTotalSacola += valorDeCadaItem;
+
+        double valorTotalSacola = valorDosItens.stream()
+                .mapToDouble(valorTotalDeCadaItem -> valorTotalDeCadaItem)
+                .sum();
+
+        sacola.setValorTotal(valorTotalSacola);
         sacolaRepository.save(sacola);
-        return itemRepository.save(itemParaSerInserido);
+        return itemParaSerInserido;
     }
 
     @Override
@@ -72,9 +89,9 @@ public class SacolaServiceImpl implements SacolaService {
         if (sacola.getItens().isEmpty()) {
             throw new RuntimeException("Não é possível fechar uma sacola vazia");
         }
-        if (numeroformaPagamento == 0){
+        if (numeroformaPagamento == 0) {
             sacola.setFormaPagamento((FormaPagamento.DINHEIRO));
-        } else{
+        } else {
             sacola.setFormaPagamento((FormaPagamento.MAQUINETA));
         }
 
