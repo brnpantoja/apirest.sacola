@@ -99,5 +99,18 @@ public class SacolaServiceImpl implements SacolaService {
         return sacolaRepository.save(sacola);
 
     }
+
+    @Override
+    public Sacola deletarSacola(Long id) {
+        Sacola sacola = verSacola(id);
+        if (sacola.isFechada()) {
+            throw new RuntimeException("Não é possível deletar uma sacola fechada");
+        }
+        for (Item item : sacola.getItens()) {
+            itemRepository.delete(item);
+        }
+        sacolaRepository.delete(sacola);
+        return sacola;
+    }
 }
 
